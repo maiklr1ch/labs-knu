@@ -66,7 +66,7 @@ void addDishes() {
     fclose(fp);
 }
 
-Dish* getDishes(int& countOut) {
+Dish* getDishes(int& recordsCount) {
     FILE* fp;
     if (fopen_s(&fp, FILENAME_B, "rb"))
     {
@@ -76,7 +76,7 @@ Dish* getDishes(int& countOut) {
     fseek(fp, 0, SEEK_END);
     const int lastPosition = ftell(fp);
     fseek(fp, 0, SEEK_SET);
-    const int recordsCount = lastPosition / sizeof(Dish);
+    recordsCount = lastPosition / sizeof(Dish);
     if (lastPosition < sizeof(Dish))
     {
         printf("There is no records\n");
@@ -85,19 +85,14 @@ Dish* getDishes(int& countOut) {
     Dish* dishList = new Dish[recordsCount];
     fread_s(dishList, sizeof(Dish) * recordsCount, sizeof(Dish), recordsCount, fp);
     fclose(fp);
-    countOut = recordsCount;
     return dishList;
 }
 
 void menuAll() {
     int recordsCount;
     Dish* dishList = getDishes(recordsCount);
-    int counter = 1;
     for (int i = 0; i < recordsCount; i++)
-    {
-        printf("%d | %s | %s | Price: %.2f\n", counter, dishList[i].name, getTypeLiteral(dishList[i].type), dishList[i].price);
-        counter++;
-    }
+        printf("%d | %s | %s | Price: %.2f\n", i + 1, dishList[i].name, getTypeLiteral(dishList[i].type), dishList[i].price);
     delete[] dishList;
 }
 
@@ -114,15 +109,8 @@ void menuTyped()
     int counter = 1;
     for (int i = 0; i < recordsCount; i++)
     {
-        if (t != -1)
+        if (dishList[i].type == t)
         {
-            if (dishList[i].type == t)
-            {
-                printf("Dish %d | Name: %s | Type: %s | Price: %.2f\n", counter, dishList[i].name, getTypeLiteral(dishList[i].type), dishList[i].price);
-                counter++;
-            }
-        }
-        else {
             printf("Dish %d | Name: %s | Type: %s | Price: %.2f\n", counter, dishList[i].name, getTypeLiteral(dishList[i].type), dishList[i].price);
             counter++;
         }
